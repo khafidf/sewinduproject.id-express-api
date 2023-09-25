@@ -24,6 +24,7 @@ const isPhoto = (data) => {
 
 export const validateSignup = (data) => {
 	let errors = {};
+
 	isEmpty(data.email)
 		? (errors.email = "Must not be empty")
 		: !isEmail(data.email) && (errors.email = "Must be a valid email address");
@@ -48,6 +49,7 @@ export const validateSignup = (data) => {
 
 export const validateLogin = (data) => {
 	let errors = {};
+
 	isEmpty(data.identifier)
 		? (errors.identifier = "Must not be empty")
 		: isEmail(data.identifier) || isPhoneNumber(data.identifier)
@@ -66,6 +68,7 @@ export const validateLogin = (data) => {
 
 export const validateAddPhoto = (data) => {
 	let errors = {};
+
 	isEmpty(data.category) && (errors.category = "Must not be empty");
 	isEmpty(data.desc) && (errors.desc = "Must not be empty");
 	isEmpty(data.mimetype)
@@ -77,8 +80,24 @@ export const validateAddPhoto = (data) => {
 	};
 };
 
+export const validateAddPackage = (data) => {
+	let errors = {};
+
+	isEmpty(data.category) && (errors.category = "Must not be empty");
+	isEmpty(data.desc) && (errors.desc = "Must not be empty");
+	isEmpty(data.price) && (errors.price = "Must not be empty");
+	isEmpty(data.mimetype)
+		? (errors.mimetype = "Must not be empty")
+		: isPhoto(data.mimetype) && (errors.mimetype = "Wrong file type sumbitted");
+	return {
+		valid: Object.keys(errors).length === 0 ? true : false,
+		errors,
+	};
+};
+
 export const validateUpdatePhoto = (data) => {
 	let errors = {};
+
 	isPhoto(data.mimetype) && (errors.mimetype = "Wrong file type sumbitted");
 	return {
 		valid: Object.keys(errors).length === 0 ? true : false,
