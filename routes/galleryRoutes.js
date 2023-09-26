@@ -11,7 +11,7 @@ import {
 } from "../controllers/galleryControllers.js";
 
 // Admin - Client
-router.get("/photo/:category", getPhotoController);
+router.get("/:category", getPhotoController);
 
 // Admin
 router.post("/add", requireSignIn, isAdmin, upload, addPhotoController);

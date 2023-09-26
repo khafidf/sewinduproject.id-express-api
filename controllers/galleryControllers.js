@@ -19,6 +19,23 @@ export const upload = multer({ storage: multer.memoryStorage() }).single(
 	"photo"
 );
 
+export const getPhotoController = async (req, res) => {
+	const { category } = req.params;
+	try {
+		// Get Data Photo
+		const allPhoto = await galleryModel.find({ category });
+
+		res.status(200).json({
+			message: "Get data photo successfully",
+			dataPhoto: allPhoto,
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: error.message,
+		});
+	}
+};
+
 export const addPhotoController = async (req, res) => {
 	if (!req.file) return res.status(400).json({ photo: "Must not be empty" });
 
@@ -27,7 +44,7 @@ export const addPhotoController = async (req, res) => {
 
 	const dataPhoto = { category, desc, mimetype };
 	try {
-		// File Validator
+		// Data Entry Validator
 		const { valid, errors } = validateAddPhoto(dataPhoto);
 		if (!valid) return res.status(400).json(errors);
 
@@ -67,23 +84,6 @@ export const addPhotoController = async (req, res) => {
 
 		res.status(200).json({
 			message: "Photo uploaded",
-		});
-	} catch (error) {
-		res.status(400).json({
-			message: error.message,
-		});
-	}
-};
-
-export const getPhotoController = async (req, res) => {
-	const { category } = req.params;
-	try {
-		// Get Data Photo
-		const allPhoto = await galleryModel.find({ category });
-
-		res.status(200).json({
-			message: "Get data photo successfully",
-			dataPhoto: allPhoto,
 		});
 	} catch (error) {
 		res.status(400).json({

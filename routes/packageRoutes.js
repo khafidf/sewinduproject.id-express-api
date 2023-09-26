@@ -3,11 +3,26 @@ const router = express.Router();
 
 import { isAdmin, requireSignIn } from "../utils/jwt.js";
 
-import { upload } from "../controllers/packageController.js";
+import {
+	addPackageController,
+	deletePackageController,
+	getPackageController,
+	updatePackageController,
+	upload,
+} from "../controllers/packageController.js";
 
-router.get("/:category");
-router.post("/add", requireSignIn, isAdmin, upload);
-router.put("/update/:_id", requireSignIn, isAdmin, upload);
-router.delete("/delete", requireSignIn, isAdmin);
+// Admin - Client
+router.get("/:category", getPackageController);
+
+// Admin
+router.post("/add", requireSignIn, isAdmin, upload, addPackageController);
+router.put(
+	"/update/:_id",
+	requireSignIn,
+	isAdmin,
+	upload,
+	updatePackageController
+);
+router.delete("/delete/:_id", requireSignIn, isAdmin, deletePackageController);
 
 export default router;

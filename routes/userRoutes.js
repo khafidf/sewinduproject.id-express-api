@@ -21,7 +21,7 @@ router.post("/forgot-password", sendEmailController);
 router.post("/reset-password/:userId/:token", updatePasswordController);
 
 // Admin - Client
-router.get("/profile", requireSignIn, profileController);
+router.get("/", requireSignIn, profileController);
 router.put("/update", requireSignIn, updateController);
 
 // Client Proctected
