@@ -9,9 +9,12 @@ import multer from "multer";
 
 import "../utils/firebase.js";
 
-import galleryModel from "../models/galleryModel.js";
+import packageModel from "../models/packageModel.js";
 
-import { validateAddPhoto, validateUpdatePhoto } from "../utils/validators.js";
+import {
+	validateAddPackage,
+	validateUpdatePhoto,
+} from "../utils/validators.js";
 
 const storage = getStorage();
 
@@ -19,15 +22,14 @@ export const upload = multer({ storage: multer.memoryStorage() }).single(
 	"photo"
 );
 
-export const getPhotoController = async (req, res) => {
+export const getPackageController = async (req, res) => {
 	const { category } = req.params;
 	try {
-		// Get Data Photo
-		const allPhoto = await galleryModel.find({ category });
+		const allPackage = await packageModel.find({ category });
 
 		res.status(200).json({
-			message: "Get data photo successfully",
-			dataPhoto: allPhoto,
+			message: "Get data package successfully",
+			dataPhoto: allPackage,
 		});
 	} catch (error) {
 		res.status(400).json({
@@ -36,16 +38,16 @@ export const getPhotoController = async (req, res) => {
 	}
 };
 
-export const addPhotoController = async (req, res) => {
+export const addPackageController = async (req, res) => {
 	if (!req.file) return res.status(400).json({ photo: "Must not be empty" });
 
-	const { category, desc } = req.body;
+	const { category, desc, price } = req.body;
 	const { mimetype } = req.file;
 
-	const dataPhoto = { category, desc, mimetype };
+	const dataPackage = { category, desc, price, mimetype };
 	try {
 		// Data Entry Validator
-		const { valid, errors } = validateAddPhoto(dataPhoto);
+		const { valid, errors } = validateAddPackage(dataPackage);
 		if (!valid) return res.status(400).json(errors);
 
 		// File Name
@@ -58,7 +60,7 @@ export const addPhotoController = async (req, res) => {
 		).toString()}.${imageExtension}`;
 
 		// Storage Reference
-		const storageRef = ref(storage, `photos/${imageFileName}`);
+		const storageRef = ref(storage, `packages/${imageFileName}`);
 
 		// File Metadata
 		const metadata = {
@@ -75,15 +77,14 @@ export const addPhotoController = async (req, res) => {
 		// Get URL
 		const URL = await getDownloadURL(snapshot.ref);
 
-		// Save Data
-		await new galleryModel({
-			...dataPhoto,
+		await new packageModel({
+			...dataPackage,
 			photoUrl: URL,
 			photoName: imageFileName,
 		}).save();
 
 		res.status(200).json({
-			message: "Photo uploaded",
+			message: "Package uploaded",
 		});
 	} catch (error) {
 		res.status(400).json({
@@ -92,12 +93,12 @@ export const addPhotoController = async (req, res) => {
 	}
 };
 
-export const updatePhotoController = async (req, res) => {
+export const updatePackageController = async (req, res) => {
 	const { _id } = req.params;
-	const { category, desc } = req.body;
+	const { category, desc, price } = req.body;
+
 	try {
-		// Get Data Photo
-		const photo = await galleryModel.findById(_id);
+		const packageData = await packageModel.findById(_id);
 
 		if (req.file) {
 			// File Validator
@@ -105,7 +106,7 @@ export const updatePhotoController = async (req, res) => {
 			if (!valid) return res.status(400).json(errors);
 
 			// Storage Reference
-			const storageRef = ref(storage, `photos/${photo.photoName}`);
+			const storageRef = ref(storage, `packages/${packageData.photoName}`);
 
 			// File Metadata
 			const metadata = {
@@ -122,18 +123,19 @@ export const updatePhotoController = async (req, res) => {
 			// Get URL
 			const URL = await getDownloadURL(snapshot.ref);
 
-			photo.photoUrl = URL;
+			packageData.photoUrl = URL;
 		}
 
-		// Update Category and Description
-		photo.category = category;
-		photo.desc = desc;
+		// Update Category, Description, Price
+		packageData.category = category;
+		packageData.desc = desc;
+		packageData.price = price;
 
 		// Save Updated Data
-		await photo.save();
+		await packageData.save();
 
 		res.status(200).json({
-			message: "Photo information updated",
+			message: "Package information updated",
 		});
 	} catch (error) {
 		res.status(400).json({
@@ -142,20 +144,20 @@ export const updatePhotoController = async (req, res) => {
 	}
 };
 
-export const deletePhotoController = async (req, res) => {
+export const deletePackageController = async (req, res) => {
 	const { _id } = req.params;
 	try {
-		// Get Data Photo and Delete
-		const photo = await galleryModel.findOneAndDelete({ _id });
+		// Get Data Package and Delete
+		const packageData = await packageModel.findByIdAndDelete({ _id });
 
 		// Storage Reference
-		const storageRef = ref(storage, `photos/${photo.photoName}`);
+		const storageRef = ref(storage, `packages/${packageData.photoName}`);
 
 		// Delete Photo in GCS
 		await deleteObject(storageRef);
 
 		res.status(200).json({
-			message: "Photo has been deleted",
+			message: "Package has been deleted",
 		});
 	} catch (error) {
 		res.status(400).json({
