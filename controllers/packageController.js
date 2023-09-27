@@ -106,7 +106,7 @@ export const updatePackageController = async (req, res) => {
 			if (!valid) return res.status(400).json(errors);
 
 			// Storage Reference
-			const storageRef = ref(storage, `packages/${photo.photoName}`);
+			const storageRef = ref(storage, `packages/${packageData.photoName}`);
 
 			// File Metadata
 			const metadata = {
@@ -151,7 +151,7 @@ export const deletePackageController = async (req, res) => {
 		const packageData = await packageModel.findByIdAndDelete({ _id });
 
 		// Storage Reference
-		const storageRef = ref(storage, `packages/${photo.photoName}`);
+		const storageRef = ref(storage, `packages/${packageData.photoName}`);
 
 		// Delete Photo in GCS
 		await deleteObject(storageRef);
