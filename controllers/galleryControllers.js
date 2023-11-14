@@ -6,6 +6,7 @@ import {
 	uploadBytesResumable,
 } from "firebase/storage";
 import multer from "multer";
+import sharp from "sharp";
 
 import "../utils/firebase.js";
 
@@ -65,10 +66,15 @@ export const addPhotoController = async (req, res) => {
 			contentType: req.file.mimetype,
 		};
 
+		// Resize Image
+		const resizedImage = await sharp(req.file.buffer)
+			.resize({ width: 1080 })
+			.toBuffer();
+
 		// Upload File to Bucket
 		const snapshot = await uploadBytesResumable(
 			storageRef,
-			req.file.buffer,
+			resizedImage,
 			metadata
 		);
 

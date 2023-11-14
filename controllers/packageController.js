@@ -29,7 +29,7 @@ export const getPackageController = async (req, res) => {
 
 		res.status(200).json({
 			message: "Get data package successfully",
-			dataPhoto: allPackage,
+			dataPackages: allPackage,
 		});
 	} catch (error) {
 		res.status(400).json({

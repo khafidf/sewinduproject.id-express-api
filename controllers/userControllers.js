@@ -46,9 +46,7 @@ export const registerController = async (req, res) => {
 		});
 
 		res.status(200).json({
-			data: newUser.name,
 			message: "Add new user successfully",
-			token,
 		});
 	} catch (error) {
 		res.status(400).json({
@@ -89,7 +87,10 @@ export const loginController = async (req, res) => {
 		);
 
 		res.status(200).json({
-			data: currentUser.name,
+			data: {
+				name: currentUser.name,
+				id: currentUser._id,
+			},
 			message: "Login successfully",
 			token,
 		});
