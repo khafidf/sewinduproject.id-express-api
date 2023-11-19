@@ -40,11 +40,6 @@ export const registerController = async (req, res) => {
 			password: hashedPassword,
 		}).save();
 
-		// Token
-		const token = await JWT.sign({ _id: newUser._id }, process.env.JWT_SECRET, {
-			expiresIn: "7d",
-		});
-
 		res.status(200).json({
 			message: "Add new user successfully",
 		});
@@ -86,19 +81,27 @@ export const loginController = async (req, res) => {
 			}
 		);
 
-		res.status(200).json({
-			data: {
+		res
+			.cookie("authToken", token, { maxAge: 1000 * 60 * 60 * 24 * 7 })
+			.cookie("user", currentUser.name, { maxAge: 1000 * 60 * 60 * 24 * 7 })
+			.status(200)
+			.json({
 				name: currentUser.name,
 				id: currentUser._id,
-			},
-			message: "Login successfully",
-			token,
-		});
+				message: "Login successfully",
+				token,
+			});
 	} catch (error) {
 		res.status(400).json({
 			message: error.message,
 		});
 	}
+};
+
+export const logoutController = async (req, res) => {
+	res.clearCookie("authToken").clearCookie("user");
+
+	res.status(200).json({ message: "Logout berhasil" });
 };
 
 export const sendEmailController = async (req, res) => {
@@ -177,7 +180,7 @@ export const profileController = async (req, res) => {
 
 		res.status(200).json({
 			message: "Get data profile successfully",
-			dataUser: user,
+			data: user,
 		});
 	} catch (error) {
 		res.status(400).json({

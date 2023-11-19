@@ -3,7 +3,7 @@ import userModel from "../models/userModel.js";
 
 // Client Access
 export const requireSignIn = async (req, res, next) => {
-	let token = req.headers.authorization?.split("Bearer ")[1] || null;
+	let token = req.cookies.authToken || null;
 	if (!token) return res.status(401).json({ message: "Unauthorized" });
 
 	try {

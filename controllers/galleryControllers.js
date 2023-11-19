@@ -20,15 +20,30 @@ export const upload = multer({ storage: multer.memoryStorage() }).single(
 	"photo"
 );
 
+export const getAllPhotoController = async (req, res) => {
+	try {
+		// Get Data Photo
+		const allPhoto = await galleryModel.find();
+
+		res.status(200).json({
+			message: "Get data photo successfully",
+			data: allPhoto,
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: error.message,
+		});
+	}
+};
 export const getPhotoController = async (req, res) => {
 	const { category } = req.params;
 	try {
 		// Get Data Photo
-		const allPhoto = await galleryModel.find({ category });
+		const categoryPhoto = await galleryModel.find({ category });
 
 		res.status(200).json({
 			message: "Get data photo successfully",
-			dataPhoto: allPhoto,
+			data: categoryPhoto,
 		});
 	} catch (error) {
 		res.status(400).json({

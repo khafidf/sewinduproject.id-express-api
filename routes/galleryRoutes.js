@@ -5,12 +5,14 @@ import { isAdmin, requireSignIn } from "../utils/jwt.js";
 import {
 	addPhotoController,
 	deletePhotoController,
+	getAllPhotoController,
 	getPhotoController,
 	updatePhotoController,
 	upload,
 } from "../controllers/galleryControllers.js";
 
 // Admin - Client
+router.get("/", getAllPhotoController);
 router.get("/:category", getPhotoController);
 
 // Admin
