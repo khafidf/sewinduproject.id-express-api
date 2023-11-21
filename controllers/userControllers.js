@@ -88,6 +88,7 @@ export const loginController = async (req, res) => {
 			.json({
 				name: currentUser.name,
 				id: currentUser._id,
+				role: currentUser.roles,
 				message: "Login successfully",
 				token,
 			});

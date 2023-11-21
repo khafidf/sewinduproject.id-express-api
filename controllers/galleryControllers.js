@@ -11,6 +11,7 @@ import sharp from "sharp";
 import "../utils/firebase.js";
 
 import galleryModel from "../models/galleryModel.js";
+import categoryModel from "../models/categoryModel.js";
 
 import { validateAddPhoto, validateUpdatePhoto } from "../utils/validators.js";
 
@@ -95,6 +96,14 @@ export const addPhotoController = async (req, res) => {
 
 		// Get URL
 		const URL = await getDownloadURL(snapshot.ref);
+
+		// Add Category
+		const currentCategory = await categoryModel.findOne({ category });
+		if (!currentCategory) {
+			await new categoryModel({
+				category,
+			}).save();
+		}
 
 		// Save Data
 		await new galleryModel({

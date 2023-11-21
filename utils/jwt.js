@@ -3,8 +3,8 @@ import userModel from "../models/userModel.js";
 
 // Client Access
 export const requireSignIn = async (req, res, next) => {
-	let token = req.cookies.authToken || null;
-	if (!token) return res.status(401).json({ message: "Unauthorized" });
+	let token = req.cookies.authToken;
+	if (!token) return res.status(401).json({ message: "UnAuthorized" });
 
 	try {
 		const decode = JWT.verify(token, process.env.JWT_SECRET);
@@ -22,7 +22,7 @@ export const requireSignIn = async (req, res, next) => {
 export const isAdmin = async (req, res, next) => {
 	try {
 		const user = await userModel.findById(req.user?._id);
-		if (user.role !== 1) {
+		if (user.roles !== "1") {
 			return res.status(401).json({ message: "UnAuthorized access" });
 		}
 		next();

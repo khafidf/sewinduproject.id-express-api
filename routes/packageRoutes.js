@@ -9,7 +9,7 @@ import {
 	getPackageController,
 	updatePackageController,
 	upload,
-} from "../controllers/packageController.js";
+} from "../controllers/packageControllers.js";
 
 // Admin - Client
 router.get("/:category", getPackageController);

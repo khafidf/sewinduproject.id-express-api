@@ -8,6 +8,7 @@ import "./dbConfig.js";
 
 // Routes
 import userRoutes from "./routes/userRoutes.js";
+import categoryRoutes from "./routes/categoryRoutes.js";
 import galleryRoutes from "./routes/galleryRoutes.js";
 import packageRoutes from "./routes/packageRoutes.js";
 
@@ -27,6 +28,7 @@ const PORT = process.env.PORT;
 
 // Endpoints
 app.use("/api/user", userRoutes);
+app.use("/api/category", categoryRoutes);
 app.use("/api/gallery", galleryRoutes);
 app.use("/api/package", packageRoutes);
 
