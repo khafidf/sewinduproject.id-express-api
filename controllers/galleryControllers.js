@@ -36,6 +36,7 @@ export const getAllPhotoController = async (req, res) => {
 		});
 	}
 };
+
 export const getPhotoController = async (req, res) => {
 	const { category } = req.params;
 	try {

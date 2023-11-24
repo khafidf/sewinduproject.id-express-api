@@ -84,11 +84,12 @@ export const loginController = async (req, res) => {
 		res
 			.cookie("authToken", token, { maxAge: 1000 * 60 * 60 * 24 * 7 })
 			.cookie("user", currentUser.name, { maxAge: 1000 * 60 * 60 * 24 * 7 })
+			.cookie("roles", currentUser.roles, { maxAge: 1000 * 60 * 60 * 24 * 7 })
 			.status(200)
 			.json({
 				name: currentUser.name,
 				id: currentUser._id,
-				role: currentUser.roles,
+				roles: currentUser.roles,
 				message: "Login successfully",
 				token,
 			});
@@ -100,7 +101,7 @@ export const loginController = async (req, res) => {
 };
 
 export const logoutController = async (req, res) => {
-	res.clearCookie("authToken").clearCookie("user");
+	res.clearCookie("authToken").clearCookie("user").clearCookie("roles");
 
 	res.status(200).json({ message: "Logout berhasil" });
 };

@@ -6,12 +6,14 @@ import { isAdmin, requireSignIn } from "../utils/jwt.js";
 import {
 	addPackageController,
 	deletePackageController,
+	getAllPackageController,
 	getPackageController,
 	updatePackageController,
 	upload,
 } from "../controllers/packageControllers.js";
 
 // Admin - Client
+router.get("/", getAllPackageController);
 router.get("/:category", getPackageController);
 
 // Admin

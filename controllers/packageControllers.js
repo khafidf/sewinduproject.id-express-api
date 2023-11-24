@@ -22,14 +22,30 @@ export const upload = multer({ storage: multer.memoryStorage() }).single(
 	"photo"
 );
 
-export const getPackageController = async (req, res) => {
-	const { category } = req.params;
+export const getAllPackageController = async (req, res) => {
 	try {
-		const allPackage = await packageModel.find({ category });
+		// Get Data Packages
+		const allPackages = await packageModel.find();
 
 		res.status(200).json({
 			message: "Get data package successfully",
-			dataPackages: allPackage,
+			data: allPackages,
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: error.message,
+		});
+	}
+};
+
+export const getPackageController = async (req, res) => {
+	const { category } = req.params;
+	try {
+		const packageByCategory = await packageModel.find({ category });
+
+		res.status(200).json({
+			message: "Get data package successfully",
+			data: packageByCategory,
 		});
 	} catch (error) {
 		res.status(400).json({
