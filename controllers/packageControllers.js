@@ -10,6 +10,8 @@ import multer from "multer";
 import "../utils/firebase.js";
 
 import packageModel from "../models/packageModel.js";
+import galleryModel from "../models/galleryModel.js";
+import categoryModel from "../models/categoryModel.js";
 
 import {
 	validateAddPackage,
@@ -93,6 +95,15 @@ export const addPackageController = async (req, res) => {
 		// Get URL
 		const URL = await getDownloadURL(snapshot.ref);
 
+		// Add Category
+		const currentCategory = await categoryModel.findOne({ category });
+		if (!currentCategory) {
+			await new categoryModel({
+				category,
+			}).save();
+		}
+
+		// Save Data
 		await new packageModel({
 			...dataPackage,
 			photoUrl: URL,
@@ -142,6 +153,27 @@ export const updatePackageController = async (req, res) => {
 			packageData.photoUrl = URL;
 		}
 
+		// Add Category
+		const currentCategory = await categoryModel.findOne({ category });
+		if (!currentCategory) {
+			await new categoryModel({
+				category,
+			}).save();
+		}
+
+		// Delete Category
+		const categoryGallery = await galleryModel.find({
+			category: packageData.category,
+		});
+
+		const categoryPackage = await packageModel.find({
+			category: packageData.category,
+		});
+
+		if (!categoryGallery && !categoryPackage) {
+			await categoryModel.findOneAndDelete({ category: packageData.category });
+		}
+
 		// Update Category, Description, Price
 		packageData.category = category;
 		packageData.desc = desc;
@@ -165,6 +197,19 @@ export const deletePackageController = async (req, res) => {
 	try {
 		// Get Data Package and Delete
 		const packageData = await packageModel.findByIdAndDelete({ _id });
+
+		// Delete Category
+		const categoryGallery = await galleryModel.find({
+			category: packageData.category,
+		});
+
+		const categoryPackage = await packageModel.find({
+			category: packageData.category,
+		});
+
+		if (!categoryGallery && !categoryPackage) {
+			await categoryModel.findOneAndDelete({ category: packageData.category });
+		}
 
 		// Storage Reference
 		const storageRef = ref(storage, `packages/${packageData.photoName}`);

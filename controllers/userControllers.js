@@ -41,7 +41,7 @@ export const registerController = async (req, res) => {
 		}).save();
 
 		res.status(200).json({
-			message: "Add new user successfully",
+			message: "Register successfully",
 		});
 	} catch (error) {
 		res.status(400).json({
@@ -70,7 +70,7 @@ export const loginController = async (req, res) => {
 
 		// Compare Password
 		const compare = await comparePassword(password, currentUser.password);
-		if (!compare) return res.status(401).json({ message: "Unauthorized" });
+		if (!compare) return res.status(401).json({ message: "Wrong password" });
 
 		// Token
 		const token = await JWT.sign(
@@ -87,11 +87,8 @@ export const loginController = async (req, res) => {
 			.cookie("roles", currentUser.roles, { maxAge: 1000 * 60 * 60 * 24 * 7 })
 			.status(200)
 			.json({
-				name: currentUser.name,
-				id: currentUser._id,
 				roles: currentUser.roles,
 				message: "Login successfully",
-				token,
 			});
 	} catch (error) {
 		res.status(400).json({

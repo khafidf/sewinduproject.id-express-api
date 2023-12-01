@@ -12,6 +12,7 @@ import "../utils/firebase.js";
 
 import galleryModel from "../models/galleryModel.js";
 import categoryModel from "../models/categoryModel.js";
+import packageModel from "../models/packageModel.js";
 
 import { validateAddPhoto, validateUpdatePhoto } from "../utils/validators.js";
 
@@ -156,6 +157,27 @@ export const updatePhotoController = async (req, res) => {
 			photo.photoUrl = URL;
 		}
 
+		// Add Category
+		const currentCategory = await categoryModel.findOne({ category });
+		if (!currentCategory) {
+			await new categoryModel({
+				category,
+			}).save();
+		}
+
+		// Delete Category
+		const categoryGallery = await galleryModel.find({
+			category: photo.category,
+		});
+
+		const categoryPackage = await packageModel.find({
+			category: photo.category,
+		});
+
+		if (!categoryGallery && !categoryPackage) {
+			await categoryModel.findOneAndDelete({ category: photo.category });
+		}
+
 		// Update Category and Description
 		photo.category = category;
 		photo.desc = desc;
@@ -178,6 +200,19 @@ export const deletePhotoController = async (req, res) => {
 	try {
 		// Get Data Photo and Delete
 		const photo = await galleryModel.findOneAndDelete({ _id });
+
+		// Delete Category
+		const categoryGallery = await galleryModel.find({
+			category: photo.category,
+		});
+
+		const categoryPackage = await packageModel.find({
+			category: photo.category,
+		});
+
+		if (!categoryGallery && !categoryPackage) {
+			await categoryModel.findOneAndDelete({ category: photo.category });
+		}
 
 		// Storage Reference
 		const storageRef = ref(storage, `photos/${photo.photoName}`);

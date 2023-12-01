@@ -55,11 +55,8 @@ export const validateLogin = (data) => {
 		: isEmail(data.identifier) || isPhoneNumber(data.identifier)
 		? null
 		: (errors.identifier = "Must be a valid email address or phone number");
-	isEmpty(data.password)
-		? (errors.password = "Must not be empty")
-		: !isPassword(data.password) &&
-		  (errors.password =
-				"Password at least 8 characters and contains lowercase, and number");
+	isEmpty(data.password) && (errors.password = "Must not be empty");
+
 	return {
 		valid: Object.keys(errors).length === 0 ? true : false,
 		errors,
