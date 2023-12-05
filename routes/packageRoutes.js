@@ -9,12 +9,14 @@ import {
 	getAllPackageController,
 	getPackageController,
 	updatePackageController,
+	getPackageDetailsController,
 	upload,
 } from "../controllers/packageControllers.js";
 
 // Admin - Client
 router.get("/", getAllPackageController);
 router.get("/:category", getPackageController);
+router.get("/details/:_id", getPackageDetailsController);
 
 // Admin
 router.post("/add", requireSignIn, isAdmin, upload, addPackageController);

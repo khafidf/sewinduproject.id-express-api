@@ -56,13 +56,31 @@ export const getPackageController = async (req, res) => {
 	}
 };
 
-export const addPackageController = async (req, res) => {
-	if (!req.file) return res.status(400).json({ photo: "Must not be empty" });
+export const getPackageDetailsController = async (req, res) => {
+	const { _id } = req.params;
 
-	const { category, desc, price } = req.body;
+	try {
+		const packageDetails = await packageModel.findById(_id);
+
+		res.status(200).json({
+			data: packageDetails,
+			message: "Details package",
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: error.message,
+		});
+	}
+};
+
+export const addPackageController = async (req, res) => {
+	if (!req.file)
+		return res.status(400).json({ photo: "Photo must not be empty" });
+
+	const { category, desc, price, hour, name } = req.body;
 	const { mimetype } = req.file;
 
-	const dataPackage = { category, desc, price, mimetype };
+	const dataPackage = { category, desc, price, hour, name, mimetype };
 	try {
 		// Data Entry Validator
 		const { valid, errors } = validateAddPackage(dataPackage);
@@ -111,7 +129,7 @@ export const addPackageController = async (req, res) => {
 		}).save();
 
 		res.status(200).json({
-			message: "Package uploaded",
+			message: "Upload Package Successfully",
 		});
 	} catch (error) {
 		res.status(400).json({
@@ -122,7 +140,7 @@ export const addPackageController = async (req, res) => {
 
 export const updatePackageController = async (req, res) => {
 	const { _id } = req.params;
-	const { category, desc, price } = req.body;
+	const { category, desc, price, name } = req.body;
 
 	try {
 		const packageData = await packageModel.findById(_id);
@@ -162,11 +180,11 @@ export const updatePackageController = async (req, res) => {
 		}
 
 		// Delete Category
-		const categoryGallery = await galleryModel.find({
+		const categoryGallery = await galleryModel.findOne({
 			category: packageData.category,
 		});
 
-		const categoryPackage = await packageModel.find({
+		const categoryPackage = await packageModel.findOne({
 			category: packageData.category,
 		});
 
@@ -178,6 +196,7 @@ export const updatePackageController = async (req, res) => {
 		packageData.category = category;
 		packageData.desc = desc;
 		packageData.price = price;
+		packageData.name = name;
 
 		// Save Updated Data
 		await packageData.save();
@@ -199,11 +218,11 @@ export const deletePackageController = async (req, res) => {
 		const packageData = await packageModel.findByIdAndDelete({ _id });
 
 		// Delete Category
-		const categoryGallery = await galleryModel.find({
+		const categoryGallery = await galleryModel.findOne({
 			category: packageData.category,
 		});
 
-		const categoryPackage = await packageModel.find({
+		const categoryPackage = await packageModel.findOne({
 			category: packageData.category,
 		});
 

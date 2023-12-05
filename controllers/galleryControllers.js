@@ -28,7 +28,7 @@ export const getAllPhotoController = async (req, res) => {
 		const allPhoto = await galleryModel.find();
 
 		res.status(200).json({
-			message: "Get data photo successfully",
+			message: "Get data photos successfully",
 			data: allPhoto,
 		});
 	} catch (error) {
@@ -56,7 +56,8 @@ export const getPhotoController = async (req, res) => {
 };
 
 export const addPhotoController = async (req, res) => {
-	if (!req.file) return res.status(400).json({ photo: "Must not be empty" });
+	if (!req.file)
+		return res.status(400).json({ photo: "Photo must not be empty" });
 
 	const { category, desc } = req.body;
 	const { mimetype } = req.file;
@@ -115,7 +116,7 @@ export const addPhotoController = async (req, res) => {
 		}).save();
 
 		res.status(200).json({
-			message: "Photo uploaded",
+			message: "Upload Photo Successfully",
 		});
 	} catch (error) {
 		res.status(400).json({
@@ -166,11 +167,11 @@ export const updatePhotoController = async (req, res) => {
 		}
 
 		// Delete Category
-		const categoryGallery = await galleryModel.find({
+		const categoryGallery = await galleryModel.findOne({
 			category: photo.category,
 		});
 
-		const categoryPackage = await packageModel.find({
+		const categoryPackage = await packageModel.findOne({
 			category: photo.category,
 		});
 
@@ -202,11 +203,11 @@ export const deletePhotoController = async (req, res) => {
 		const photo = await galleryModel.findOneAndDelete({ _id });
 
 		// Delete Category
-		const categoryGallery = await galleryModel.find({
+		const categoryGallery = await galleryModel.findOne({
 			category: photo.category,
 		});
 
-		const categoryPackage = await packageModel.find({
+		const categoryPackage = await packageModel.findOne({
 			category: photo.category,
 		});
 

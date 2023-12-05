@@ -7,6 +7,10 @@ const Package = new Schema(
 			lowercase: true,
 			required: true,
 		},
+		name: {
+			type: String,
+			required: true,
+		},
 		desc: {
 			type: String,
 			required: true,
@@ -20,6 +24,10 @@ const Package = new Schema(
 			required: true,
 		},
 		price: {
+			type: String,
+			required: true,
+		},
+		hour: {
 			type: String,
 			required: true,
 		},
