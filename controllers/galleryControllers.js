@@ -87,6 +87,8 @@ export const addPhotoController = async (req, res) => {
 
 		// Resize Image
 		const resizedImage = await sharp(req.file.buffer)
+			.toFormat("webp")
+			.webp({ quality: 80 })
 			.resize({ width: 1080 })
 			.toBuffer();
 
@@ -145,10 +147,16 @@ export const updatePhotoController = async (req, res) => {
 				contentType: req.file.mimetype,
 			};
 
+			const resizedImage = await sharp(req.file.buffer)
+				.toFormat("webp")
+				.webp({ quality: 80 })
+				.resize({ width: 1080 })
+				.toBuffer();
+
 			// Upload File to Bucket
 			const snapshot = await uploadBytesResumable(
 				storageRef,
-				req.file.buffer,
+				resizedImage,
 				metadata
 			);
 

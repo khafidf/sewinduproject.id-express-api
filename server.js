@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import compression from "compression";
 import "dotenv/config";
 
 // DB config
@@ -16,6 +17,7 @@ import packageRoutes from "./routes/packageRoutes.js";
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
+app.use(compression());
 app.use(
 	cors({
 		origin: "http://localhost:5173",
