@@ -20,7 +20,7 @@ app.use(cookieParser());
 app.use(compression());
 app.use(
 	cors({
-		origin: "http://localhost:5173",
+		origin: "https://sparkling-trifle-08bace.netlify.app/",
 		credentials: true,
 	})
 );
