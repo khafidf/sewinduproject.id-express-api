@@ -20,7 +20,7 @@ app.use(cookieParser());
 app.use(compression());
 app.use(
 	cors({
-		origin: "https://sparkling-trifle-08bace.netlify.app/",
+		origin: "http://localhost:5173",
 		credentials: true,
 	})
 );
@@ -37,5 +37,3 @@ app.use("/api/package", packageRoutes);
 app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`);
 });
-
-module.exports = app;
