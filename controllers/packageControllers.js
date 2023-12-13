@@ -6,6 +6,7 @@ import {
 	uploadBytesResumable,
 } from "firebase/storage";
 import multer from "multer";
+import sharp from "sharp";
 
 import "../utils/firebase.js";
 
