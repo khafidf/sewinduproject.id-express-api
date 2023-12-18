@@ -12,6 +12,10 @@ const Booking = new Schema(
 			required: true,
 			ref: "package",
 		},
+		packageName: {
+			type: String,
+			required: true,
+		},
 		date: {
 			day: {
 				type: String,

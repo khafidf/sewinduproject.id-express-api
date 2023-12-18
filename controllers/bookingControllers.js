@@ -1,10 +1,10 @@
 import bookingModel from "../models/bookingModel.js";
 import userModel from "../models/userModel.js";
 import packageModel from "../models/packageModel.js";
-import { makeTransaction } from "../utils/api/services.js";
+import { getStatusOrder, makeTransaction } from "../utils/api/services.js";
 
 // Full transaction
-export const createTransaction = async (req, res) => {
+export const createTransactionController = async (req, res) => {
 	const { orders, payment } = req.body;
 
 	try {
@@ -55,14 +55,16 @@ export const createTransaction = async (req, res) => {
 
 		// Booking data
 		for (const order of orders) {
+			const packageOrder = await packageModel.findById(order.packageId);
 			const { day, time } = order.date;
 			const { va_numbers, order_id } = transactionData;
 
 			const bookingData = {
 				userId: order.userId,
 				packageId: order.packageId,
+				packageName: packageOrder.name,
 				date: {
-					day: day.map((date) => new Date(date)),
+					day,
 					time,
 				},
 				orderId: order_id,
@@ -83,6 +85,50 @@ export const createTransaction = async (req, res) => {
 };
 
 //Get Status (User > params: userId)
+export const getStatusByUserController = async (req, res) => {
+	const { userId } = req.params;
+
+	try {
+		const bookingData = await bookingModel.find({ userId });
+
+		const allOrderId = [];
+		const orderDatas = [];
+
+		for (const booking of bookingData) {
+			const { orderId } = booking;
+			if (!allOrderId.includes(orderId)) {
+				allOrderId.push(orderId);
+			}
+		}
+
+		for (const order of allOrderId) {
+			const orderData = await getStatusOrder(order);
+			orderDatas.push(orderData);
+		}
+
+		res.status(200).json({
+			data: orderDatas,
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: error.message,
+		});
+	}
+};
 //Get Status (All)
+export const getAllBookingController = async (req, res) => {
+	const { day } = req.params;
+	try {
+		const bookingData = await bookingModel.find({ "date.day": day });
+
+		res.status(200).json({
+			data: bookingData,
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: error.message,
+		});
+	}
+};
 
 //Create Transaction (Change date) Optional

@@ -1,6 +1,6 @@
 import api from "./index.js";
 
-export const generateRandomOrderId = () => {
+const generateRandomOrderId = () => {
 	const now = new Date();
 	const dateString = now.toISOString().replace(/[-T:]/g, "").slice(0, -5);
 	const randomString = Math.random().toString(36).substring(2, 10);
@@ -43,15 +43,33 @@ export const makeTransaction = async (
 			expiry_duration: 60,
 			unit: "minute",
 		},
-		bank_transfer: {
-			bank: provider,
-		},
 	};
+
+	if (type === "bank_transfer") {
+		payload.bank_transfer = {
+			bank: provider,
+		};
+	} else if (type === "qris") {
+		payload.qris = "";
+	} else if (type === "gopay") {
+		payload.gopay = "";
+	} else if ((type = "shopeepay")) {
+		payload.shopeepay = "";
+	}
 
 	try {
 		const response = await api.post("/v2/charge", payload);
 		return response.data;
 	} catch (err) {
+		throw new Error(err);
+	}
+};
+
+export const getStatusOrder = async (orderId) => {
+	try {
+		const response = await api.get(`/v2/${orderId}/status`);
+		return response.data;
+	} catch (error) {
 		throw new Error(err);
 	}
 };

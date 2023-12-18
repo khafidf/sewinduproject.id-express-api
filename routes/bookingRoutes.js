@@ -1,8 +1,14 @@
 import express from "express";
 const router = express.Router();
 
-import { createTransaction } from "../controllers/bookingControllers.js";
+import {
+	getStatusByUserController,
+	getAllBookingController,
+	createTransactionController,
+} from "../controllers/bookingControllers.js";
 
-router.post("/create-transaction", createTransaction);
+router.get("/status-order/:userId", getStatusByUserController);
+router.get("/:day", getAllBookingController);
+router.post("/create-transaction", createTransactionController);
 
 export default router;
