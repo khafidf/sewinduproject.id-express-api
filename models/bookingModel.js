@@ -12,19 +12,26 @@ const Booking = new Schema(
 			required: true,
 			ref: "package",
 		},
-		date: [
-			{
-				type: Date,
+		date: {
+			day: {
+				type: String,
 				required: true,
 			},
-			{
-				type: Date,
-				default: null,
-			},
-		],
-		status: {
-			type: Number,
-			default: 0,
+
+			time: [
+				{
+					type: String,
+					required: true,
+				},
+			],
+		},
+		orderId: {
+			type: String,
+			required: true,
+		},
+		virtualAccount: {
+			type: String,
+			require: true,
 		},
 	},
 	{
