@@ -1,16 +1,17 @@
 import express from "express";
 const router = express.Router();
 
+import { requireSignIn } from "../utils/jwt.js";
 import {
-	getStatusByUserController,
+	getHistoryController,
 	getAllBookingController,
 	getBookingPerDayController,
 	createTransactionController,
 } from "../controllers/bookingControllers.js";
 
-router.get("/status-order/:userId", getStatusByUserController);
+router.get("/history", requireSignIn, getHistoryController);
 router.get("/schedule", getAllBookingController);
 router.get("/:day", getBookingPerDayController);
-router.post("/create-transaction", createTransactionController);
+router.post("/create-transaction", requireSignIn, createTransactionController);
 
 export default router;

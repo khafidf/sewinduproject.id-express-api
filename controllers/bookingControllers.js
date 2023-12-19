@@ -1,6 +1,7 @@
 import bookingModel from "../models/bookingModel.js";
 import userModel from "../models/userModel.js";
 import packageModel from "../models/packageModel.js";
+import historyModel from "../models/historyModel.js";
 import { getStatusOrder, makeTransaction } from "../utils/api/services.js";
 
 // Full transaction
@@ -10,6 +11,17 @@ export const createTransactionController = async (req, res) => {
 	try {
 		const customerDetails = [];
 		const itemDetails = [];
+		const historyData = {
+			userId: "",
+			packageName: [],
+			categoryName: [],
+			statusOrder: "",
+			price: "",
+			orderId: "",
+			created: "",
+			expire: "",
+			bank: "",
+		};
 
 		// Midtrans
 		for (const order of orders) {
@@ -57,10 +69,19 @@ export const createTransactionController = async (req, res) => {
 		for (const order of orders) {
 			const packageOrder = await packageModel.findById(order.packageId);
 			const { day, time } = order.date;
-			const { va_numbers, order_id } = transactionData;
+			const {
+				va_numbers,
+				order_id,
+				transaction_status,
+				gross_amount,
+				transaction_time,
+				expiry_time,
+			} = transactionData;
 
 			const virtualAccounts = va_numbers.map(({ va_number }) => va_number);
+			const bankAccounts = va_numbers.map(({ bank }) => bank);
 			const [va_number] = virtualAccounts;
+			const [bank] = bankAccounts;
 
 			const bookingData = {
 				userId: order.userId,
@@ -75,8 +96,20 @@ export const createTransactionController = async (req, res) => {
 				virtualAccount: va_number,
 			};
 
+			historyData.userId = order.userId;
+			historyData.packageName.push(packageOrder.name);
+			historyData.categoryName.push(packageOrder.category);
+			historyData.statusOrder = transaction_status;
+			historyData.price = gross_amount;
+			historyData.orderId = order_id;
+			historyData.created = transaction_time;
+			historyData.expire = expiry_time;
+			historyData.bank = bank;
+
 			await new bookingModel(bookingData).save();
 		}
+
+		await new historyModel(historyData).save();
 
 		res.status(200).json({
 			data: transactionData,
@@ -88,30 +121,37 @@ export const createTransactionController = async (req, res) => {
 	}
 };
 
-//Get Status (User > params: userId)
-export const getStatusByUserController = async (req, res) => {
-	const { userId } = req.params;
+// Get Status (User > params: userId) // History
+export const getHistoryController = async (req, res) => {
+	const { _id: userId } = req.user;
 
 	try {
-		const bookingData = await bookingModel.find({ userId });
+		const currentHistoryData = await historyModel.find({ userId });
 
 		const allOrderId = [];
-		const orderDatas = [];
 
-		for (const booking of bookingData) {
-			const { orderId } = booking;
-			if (!allOrderId.includes(orderId)) {
-				allOrderId.push(orderId);
-			}
+		for (const history of currentHistoryData) {
+			const { orderId } = history;
+			allOrderId.push(orderId);
 		}
 
 		for (const order of allOrderId) {
 			const orderData = await getStatusOrder(order);
-			orderDatas.push(orderData);
+
+			const latestHistory = currentHistoryData.find(
+				(history) => history.orderId === order
+			);
+
+			if (latestHistory) {
+				latestHistory.statusOrder = orderData.transaction_status;
+				await latestHistory.save();
+			}
 		}
 
+		const historyData = await historyModel.find({ userId });
+
 		res.status(200).json({
-			data: orderDatas,
+			data: historyData,
 		});
 	} catch (error) {
 		res.status(400).json({
@@ -119,10 +159,29 @@ export const getStatusByUserController = async (req, res) => {
 		});
 	}
 };
-//Get Status (All)
+// Get Status (All)
 export const getBookingPerDayController = async (req, res) => {
 	const { day } = req.params;
 	try {
+		const currentBookingData = await bookingModel.find({ "date.day": day });
+
+		const allOrderId = [];
+
+		for (const booking of currentBookingData) {
+			const { orderId } = booking;
+			allOrderId.push(orderId);
+		}
+
+		for (const order of allOrderId) {
+			const orderData = await getStatusOrder(order);
+			if (
+				orderData.transaction_status === "cancel" ||
+				orderData.transaction_status === "expire"
+			) {
+				await bookingModel.deleteMany({ orderId: orderData.order_id });
+			}
+		}
+
 		const bookingData = await bookingModel.find({ "date.day": day });
 
 		res.status(200).json({
@@ -137,6 +196,25 @@ export const getBookingPerDayController = async (req, res) => {
 
 export const getAllBookingController = async (req, res) => {
 	try {
+		const currentBookingData = await bookingModel.find();
+
+		const allOrderId = [];
+
+		for (const booking of currentBookingData) {
+			const { orderId } = booking;
+			allOrderId.push(orderId);
+		}
+
+		for (const order of allOrderId) {
+			const orderData = await getStatusOrder(order);
+			if (
+				orderData.transaction_status === "cancel" ||
+				orderData.transaction_status === "expire"
+			) {
+				await bookingModel.deleteMany({ orderId: orderData.order_id });
+			}
+		}
+
 		const bookingData = await bookingModel.find();
 
 		res.status(200).json({
