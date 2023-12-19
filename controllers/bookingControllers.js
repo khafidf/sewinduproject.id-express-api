@@ -59,16 +59,20 @@ export const createTransactionController = async (req, res) => {
 			const { day, time } = order.date;
 			const { va_numbers, order_id } = transactionData;
 
+			const virtualAccounts = va_numbers.map(({ va_number }) => va_number);
+			const [va_number] = virtualAccounts;
+
 			const bookingData = {
 				userId: order.userId,
 				packageId: order.packageId,
 				packageName: packageOrder.name,
+				categoryName: packageOrder.category,
 				date: {
 					day,
 					time,
 				},
 				orderId: order_id,
-				virtualAccount: va_numbers[0].va_number,
+				virtualAccount: va_number,
 			};
 
 			await new bookingModel(bookingData).save();
@@ -116,10 +120,24 @@ export const getStatusByUserController = async (req, res) => {
 	}
 };
 //Get Status (All)
-export const getAllBookingController = async (req, res) => {
+export const getBookingPerDayController = async (req, res) => {
 	const { day } = req.params;
 	try {
 		const bookingData = await bookingModel.find({ "date.day": day });
+
+		res.status(200).json({
+			data: bookingData,
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: error.message,
+		});
+	}
+};
+
+export const getAllBookingController = async (req, res) => {
+	try {
+		const bookingData = await bookingModel.find();
 
 		res.status(200).json({
 			data: bookingData,

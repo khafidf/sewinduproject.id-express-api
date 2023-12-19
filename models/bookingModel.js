@@ -16,6 +16,10 @@ const Booking = new Schema(
 			type: String,
 			required: true,
 		},
+		categoryName: {
+			type: String,
+			required: true,
+		},
 		date: {
 			day: {
 				type: String,
