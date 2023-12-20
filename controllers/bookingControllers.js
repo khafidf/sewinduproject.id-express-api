@@ -113,6 +113,23 @@ export const createTransactionController = async (req, res) => {
 
 		res.status(200).json({
 			data: transactionData,
+			message: "Transaction Create",
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: error.message,
+		});
+	}
+};
+
+export const getOrderController = async (req, res) => {
+	const { orderId } = req.params;
+
+	try {
+		const orderData = await getStatusOrder(orderId);
+
+		res.status(200).json({
+			data: orderData,
 		});
 	} catch (error) {
 		res.status(400).json({

@@ -85,6 +85,9 @@ export const loginController = async (req, res) => {
 			.cookie("authToken", token, { maxAge: 1000 * 60 * 60 * 24 * 7 })
 			.cookie("user", currentUser.name, { maxAge: 1000 * 60 * 60 * 24 * 7 })
 			.cookie("roles", currentUser.roles, { maxAge: 1000 * 60 * 60 * 24 * 7 })
+			.cookie("userId", String(currentUser._id), {
+				maxAge: 1000 * 60 * 60 * 24 * 7,
+			})
 			.status(200)
 			.json({
 				roles: currentUser.roles,
