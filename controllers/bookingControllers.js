@@ -4,7 +4,6 @@ import packageModel from "../models/packageModel.js";
 import historyModel from "../models/historyModel.js";
 import { getStatusOrder, makeTransaction } from "../utils/api/services.js";
 
-// Full transaction
 export const createTransactionController = async (req, res) => {
 	const { orders, payment } = req.body;
 
@@ -138,7 +137,6 @@ export const getOrderController = async (req, res) => {
 	}
 };
 
-// Get Status (User > params: userId) // History
 export const getHistoryController = async (req, res) => {
 	const { _id: userId } = req.user;
 
@@ -176,7 +174,7 @@ export const getHistoryController = async (req, res) => {
 		});
 	}
 };
-// Get Status (All)
+
 export const getBookingPerDayController = async (req, res) => {
 	const { day } = req.params;
 	try {
@@ -236,6 +234,62 @@ export const getAllBookingController = async (req, res) => {
 
 		res.status(200).json({
 			data: bookingData,
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: error.message,
+		});
+	}
+};
+
+export const getAllOrderController = async (req, res) => {
+	try {
+		const currentOrderData = await historyModel.find({
+			$or: [{ statusOrder: "settlement" }, { statusOrder: "pending" }],
+		});
+
+		const userData = [];
+		const packageData = [];
+
+		for (const order of currentOrderData) {
+			const { orderId } = order;
+
+			const orderData = await getStatusOrder(orderId);
+			if (
+				orderData.transaction_status === "cancel" ||
+				orderData.transaction_status === "expire"
+			) {
+				await bookingModel.deleteMany({ orderId: orderData.order_id });
+			}
+			const latestHistory = currentOrderData.find(
+				(history) => history.orderId === orderId
+			);
+
+			if (latestHistory) {
+				latestHistory.statusOrder = orderData.transaction_status;
+				await latestHistory.save();
+			}
+		}
+
+		const orderData = await historyModel.find({
+			$or: [{ statusOrder: "settlement" }, { statusOrder: "pending" }],
+		});
+
+		for (const order of orderData) {
+			const { userId, orderId } = order;
+
+			const dataPackage = await bookingModel.find({ orderId });
+			const dataUser = await userModel.findById(userId);
+			packageData.push(dataPackage);
+			userData.push(dataUser);
+		}
+
+		res.status(200).json({
+			data: {
+				order: orderData,
+				user: userData,
+				package: packageData,
+			},
 		});
 	} catch (error) {
 		res.status(400).json({
