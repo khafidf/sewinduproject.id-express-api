@@ -16,6 +16,7 @@ export const createTransactionController = async (req, res) => {
 			categoryName: [],
 			statusOrder: "",
 			price: "",
+			note: "",
 			orderId: "",
 			created: "",
 			expire: "",
@@ -91,6 +92,7 @@ export const createTransactionController = async (req, res) => {
 					day,
 					time,
 				},
+				note: order.note,
 				orderId: order_id,
 				virtualAccount: va_number,
 			};
@@ -244,51 +246,43 @@ export const getAllBookingController = async (req, res) => {
 
 export const getAllOrderController = async (req, res) => {
 	try {
-		const currentOrderData = await historyModel.find({
-			$or: [{ statusOrder: "settlement" }, { statusOrder: "pending" }],
-		});
+		const currentBookingData = await bookingModel.find();
 
+		const allOrderId = [];
 		const userData = [];
-		const packageData = [];
+		const orderDatas = [];
 
-		for (const order of currentOrderData) {
-			const { orderId } = order;
+		for (const booking of currentBookingData) {
+			const { orderId } = booking;
+			allOrderId.push(orderId);
+		}
 
-			const orderData = await getStatusOrder(orderId);
+		for (const order of allOrderId) {
+			const orderData = await getStatusOrder(order);
 			if (
 				orderData.transaction_status === "cancel" ||
 				orderData.transaction_status === "expire"
 			) {
 				await bookingModel.deleteMany({ orderId: orderData.order_id });
-			}
-			const latestHistory = currentOrderData.find(
-				(history) => history.orderId === orderId
-			);
-
-			if (latestHistory) {
-				latestHistory.statusOrder = orderData.transaction_status;
-				await latestHistory.save();
+			} else {
+				orderDatas.push(orderData);
 			}
 		}
 
-		const orderData = await historyModel.find({
-			$or: [{ statusOrder: "settlement" }, { statusOrder: "pending" }],
-		});
+		const bookingData = await bookingModel.find();
 
-		for (const order of orderData) {
+		for (const order of bookingData) {
 			const { userId, orderId } = order;
 
-			const dataPackage = await bookingModel.find({ orderId });
 			const dataUser = await userModel.findById(userId);
-			packageData.push(dataPackage);
 			userData.push(dataUser);
 		}
 
 		res.status(200).json({
 			data: {
-				order: orderData,
+				order: orderDatas,
+				booking: bookingData,
 				user: userData,
-				package: packageData,
 			},
 		});
 	} catch (error) {

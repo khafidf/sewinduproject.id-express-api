@@ -13,6 +13,7 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 import galleryRoutes from "./routes/galleryRoutes.js";
 import packageRoutes from "./routes/packageRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
+import dayOffRoutes from "./routes/dayOffRoutes.js";
 
 // Middlewares
 const app = express();
@@ -35,6 +36,7 @@ app.use("/api/category", categoryRoutes);
 app.use("/api/gallery", galleryRoutes);
 app.use("/api/package", packageRoutes);
 app.use("/api/booking", bookingRoutes);
+app.use("/api/day-off", dayOffRoutes);
 
 app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`);

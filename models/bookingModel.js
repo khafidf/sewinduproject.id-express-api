@@ -33,6 +33,10 @@ const Booking = new Schema(
 				},
 			],
 		},
+		note: {
+			type: String,
+			required: true,
+		},
 		orderId: {
 			type: String,
 			required: true,
