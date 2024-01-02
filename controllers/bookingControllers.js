@@ -2,6 +2,7 @@ import bookingModel from "../models/bookingModel.js";
 import userModel from "../models/userModel.js";
 import packageModel from "../models/packageModel.js";
 import historyModel from "../models/historyModel.js";
+import deliveryModel from "../models/deliveryModel.js";
 import { getStatusOrder, makeTransaction } from "../utils/api/services.js";
 
 export const createTransactionController = async (req, res) => {
@@ -160,7 +161,7 @@ export const getHistoryController = async (req, res) => {
 			);
 
 			if (latestHistory) {
-				latestHistory.statusOrder = orderData.transaction_status;
+				latestHistory.statusOrder === orderData.transaction_status;
 				await latestHistory.save();
 			}
 		}
@@ -293,3 +294,73 @@ export const getAllOrderController = async (req, res) => {
 };
 
 //Create Transaction (Change date) Optional
+
+export const addDeliveryFile = async (req, res) => {
+	const { userId, linkFile } = req.body;
+
+	const datas = {
+		userId,
+		linkFile,
+	};
+
+	try {
+		await new deliveryModel(datas).save();
+
+		res.status(200).json({
+			message: "Link file delivered successfully",
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: error.message,
+		});
+	}
+};
+
+export const editDeliveryFile = async (req, res) => {
+	const { userId, linkFile } = req.body;
+	try {
+		const deliveryData = await deliveryModel.find(userId);
+
+		deliveryData.linkFile = linkFile;
+
+		deliveryData.save();
+
+		res.status(200).json({
+			message: "Link file delivered successfully",
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: error.message,
+		});
+	}
+};
+
+export const deleteDeliveryFile = async (req, res) => {
+	const { userId } = req.params;
+	try {
+		await deliveryModel.findOneAndDelete(userId);
+
+		res.status(200).json({
+			message: "Link file deleted successfully",
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: error.message,
+		});
+	}
+};
+
+export const getDeliveryFile = async (req, res) => {
+	const { userId } = req.params;
+	try {
+		const deliveryFile = await deliveryModel.find(userId);
+
+		res.status(200).json({
+			data: deliveryFile,
+		});
+	} catch (error) {
+		res.status(400).json({
+			message: error.message,
+		});
+	}
+};
